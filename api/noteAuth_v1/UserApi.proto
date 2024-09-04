@@ -1,0 +1,86 @@
+syntax = "proto3";
+
+package noteAuth_v1;
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/wrappers.proto";
+
+option go_package = "/Users/romchik/Downloads/GoProjects/auth/pkg/noteAuth_v1;noteAuth_v1";
+
+service NoteV1 {
+  rpc Create(CreateRequest) returns (CreateResponse);
+  rpc Get(GetRequest) returns (GetResponse);
+  rpc Update(UpdateRequest) returns (UpdateResponse);
+  rpc Delete(DeleteRequest) returns (DeleteResponse);
+}
+
+message Note {
+  int64 id = 1;
+  string username = 2;
+  Role role = 3;
+  google.protobuf.Timestamp created_at = 4;
+  google.protobuf.Timestamp updated_at = 5;
+}
+
+message UpdateNoteInfo {
+  google.protobuf.StringValue title = 1;
+  google.protobuf.StringValue context = 2;
+  google.protobuf.StringValue author = 3;
+  google.protobuf.BoolValue is_public = 4;
+}
+
+//create
+message CreateRequest {
+  string name = 1;
+  string email = 2;
+  string password = 3;
+  string password_confirm = 4;
+  Role role = 5;
+}
+
+enum Role {
+  user = 0;
+  admin = 1;
+}
+
+message CreateResponse {
+  int64 id = 1;
+}
+
+//get
+message GetRequest {
+  int64 id = 1;
+}
+
+message GetResponse {
+  int64 id = 1;
+  string name = 2;
+  string email = 3;
+  Role role = 4;
+  google.protobuf.Timestamp created_at = 5;
+  google.protobuf.Timestamp updated_at = 6;
+}
+
+//update
+message UpdateRequest {
+  int64 id = 1;
+  google.protobuf.StringValue name = 2;
+  google.protobuf.StringValue email = 3;
+}
+
+message UpdateResponse {
+  google.protobuf.Empty empty = 1;
+}
+
+//delete
+message DeleteRequest {
+  int64 id = 1;
+}
+
+message DeleteResponse {
+  google.protobuf.Empty empty = 1;
+}
+
+
+
