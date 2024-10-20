@@ -3,13 +3,13 @@ package repoUser
 import (
 	"context"
 	"errors"
-	"example.com/m/internal/client/db"
 	"example.com/m/internal/model"
 	repo "example.com/m/internal/repo"
 	converter "example.com/m/internal/repo/repoUser/converter"
 	modelRepo "example.com/m/internal/repo/repoUser/model"
 	"github.com/Masterminds/squirrel"
 	sq "github.com/Masterminds/squirrel"
+	"github.com/jackc/pgx/v4/pgxpool"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -27,10 +27,10 @@ const (
 var ErrUserNotFound = errors.New("user not found")
 
 type Repo struct {
-	db db.Client
+	db *pgxpool.Pool
 }
 
-func NewRepository(db db.Client) repo.NoteRepo {
+func NewRepository(db *pgxpool.Pool) repo.NoteRepo {
 	return &Repo{db: db}
 }
 
@@ -49,12 +49,12 @@ func (r *Repo) Create(ctx context.Context, note *model.User) (int64, error) {
 		return 0, err
 	}
 
-	q := db.Query{
-		Name:     "note_repository.Create",
-		QueryRaw: query,
-	}
+	//q := db.{
+	//	Name:     "note_repository.Create",
+	//	QueryRaw: query,
+	//}
 	var id int64
-	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&id)
+	err = r.db.QueryRow(ctx, query, args...).Scan(&id)
 	if err != nil {
 		return 0, err
 	}
@@ -74,13 +74,8 @@ func (r *Repo) Get(ctx context.Context, id int64) (*model.User, error) {
 		return nil, err
 	}
 
-	q := db.Query{
-		Name:     "note_repository.Get",
-		QueryRaw: query,
-	}
-
 	var note modelRepo.RepoUser
-	err = r.db.DB().QueryRowContext(ctx, q, args...).Scan(&note.Id, &note.Name, &note.Password, &note.Role, &note.CreatedAt, &note.UpdatedAt)
+	err = r.db.QueryRow(ctx, query, args...).Scan(&note.Id, &note.Name, &note.Password, &note.Role, &note.CreatedAt, &note.UpdatedAt)
 	if err != nil {
 		return nil, err
 	}
